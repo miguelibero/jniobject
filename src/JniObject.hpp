@@ -141,6 +141,27 @@ private:
     static void buildArguments(jvalue* jargs, unsigned pos)
     {
     }
+
+template<typename... Args>
+    static void findObjectArguments(std::vector<jobject*>& jobjs, jvalue* jargs, const Args&... args)
+    {
+        processObjectArguments(jobjs, jargs, 0, args...);
+    }
+
+    template<typename Arg, typename... Args>
+    static void processObjectArguments(std::vector<jobject*>& jobjs, jvalue* jargs, unsigned pos, const Arg& arg, const Args&... args)
+    {
+        if(isObjectArgument(arg))
+        {
+            jobjs.push_back(&jargs[pos].l);
+        }
+
+        processObjectArguments(jobjs, jargs, pos+1, args...);
+    }
+
+    static void processObjectArguments(std::vector<jobject*>& jobjs, jvalue* jargs, unsigned pos)
+    {
+    }
     
     /**
      * Return the signature for the given type
@@ -277,6 +298,17 @@ public:
         defRet = JniObject(classPath, obj, classId);
         return defRet;
     }
+
+    template<typename... Args>
+    void cleanupArguments(JNIEnv* env, jvalue* jargs, Args&&... args)
+    {
+        std::vector<jobject*> jobjs;
+        findObjectArguments(jobjs, jargs, args...);
+        for(jobject* jobj : jobjs)
+        {
+            env->DeleteLocalRef(*jobj);
+        }
+    }
  
     /**
      * Calls an object method
@@ -311,6 +343,7 @@ public:
         jvalue* jargs = createArguments(args...);
         Return result;
         callJavaMethod(env, objId, methodId, jargs, result);
+        cleanupArguments(env, jargs, args...);
         checkJniException();
         return result;
     }
@@ -347,6 +380,7 @@ public:
         checkJniException();
         jvalue* jargs = createArguments(args...);
         callJavaVoidMethod(env, objId, methodId, jargs);
+        cleanupArguments(env, jargs, args...);
         checkJniException();
     }
  
@@ -377,6 +411,7 @@ public:
         checkJniException();
         jvalue* jargs = createArguments(args...);
         Return result = callStaticJavaMethod<Return>(env, classId, methodId, jargs);
+        cleanupArguments(env, jargs, args...);
         checkJniException();
         return result;
     }
@@ -408,6 +443,7 @@ public:
         checkJniException();
         jvalue* jargs = createArguments(args...);
         callStaticJavaMethod<void>(env, classId, methodId, jargs);
+        cleanupArguments(env, jargs, args...);
         checkJniException();
     }
  
@@ -814,6 +850,52 @@ public:
     static jvalue convertToJavaValue(const std::map<Key, Value>& obj)
     {
         return convertToJavaValue(createJavaMap(obj).getNewLocalInstance());
+    }
+
+    /**
+     * Return if the argument is a java object
+     * This is called on all jni arguments
+     * to decide if we need to delete a local ref
+     */
+    template<typename Type>
+    static bool isObjectArgument(const Type& obj);
+
+    // template specialization for pointers
+    template<typename Type>
+    static bool isObjectArgument(Type* obj)
+    {
+        return false;
+    }
+
+    // template specialization for containers
+    template<typename Type>
+    static bool isObjectArgument(const std::vector<Type>& obj)
+    {
+        return true;
+    }
+
+    template<typename Type>
+    static bool isObjectArgument(const std::set<Type>& obj)
+    {
+        return true;
+    }
+
+    template<typename Type, int Size>
+    static bool isObjectArgument(const std::array<Type, Size>& obj)
+    {
+        return true;
+    }
+
+    template<typename Type>
+    static bool isObjectArgument(const std::list<Type>& obj)
+    {
+        return true;
+    }
+
+    template<typename Key, typename Value>
+    static bool isObjectArgument(const std::map<Key, Value>& obj)
+    {
+        return true;
     }
  
     /**

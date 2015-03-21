@@ -364,6 +364,12 @@ std::string JniObject::getSignaturePart(const long& val)
 {
     return "J";
 }
+
+template<>
+std::string JniObject::getSignaturePart(const long long& val)
+{
+    return "J";
+}
  
 template<>
 std::string JniObject::getSignaturePart(const int& val)
@@ -499,6 +505,104 @@ jvalue JniObject::convertToJavaValue(const std::string& obj)
         return jvalue();
     }
     return convertToJavaValue(env->NewStringUTF(obj.c_str()));
+}
+
+#pragma mark - JniObject::isObjectArgument
+
+template<>
+bool JniObject::isObjectArgument(const bool& obj)
+{
+    return false;
+}
+
+template<>
+bool JniObject::isObjectArgument(const jboolean& obj)
+{
+    return false;
+}
+
+template<>
+bool JniObject::isObjectArgument(const jbyte& obj)
+{
+    return false;
+}
+
+template<>
+bool JniObject::isObjectArgument(const jchar& obj)
+{
+    return false;
+}
+
+template<>
+bool JniObject::isObjectArgument(const jshort& obj)
+{
+    return false;
+}
+
+template<>
+bool JniObject::isObjectArgument(const jint& obj)
+{
+    return false;
+}
+
+template<>
+bool JniObject::isObjectArgument(const unsigned int& obj)
+{
+    return false;
+}
+
+template<>
+bool JniObject::isObjectArgument(const long& obj)
+{
+    return false;
+}
+
+template<>
+bool JniObject::isObjectArgument(const jlong& obj)
+{
+    return false;
+}
+
+template<>
+bool JniObject::isObjectArgument(const jfloat& obj)
+{
+    return false;
+}
+
+template<>
+bool JniObject::isObjectArgument(const jdouble& obj)
+{
+    return false;
+}
+
+template<>
+bool JniObject::isObjectArgument(const jobject& obj)
+{
+    return false;
+}
+
+template<>
+bool JniObject::isObjectArgument(const JniObject& obj)
+{
+    return false;
+}
+
+template<>
+bool JniObject::isObjectArgument(const jarray& obj)
+{
+    return false;
+}
+
+template<>
+bool JniObject::isObjectArgument(const jstring& obj)
+{
+    return false;
+}
+
+template<>
+bool JniObject::isObjectArgument(const std::string& obj)
+{
+    return true;
 }
  
 #pragma mark - JniObject::convertFromJavaObject
