@@ -142,13 +142,13 @@ void JniObject::init(jobject objId, jclass classId, const std::string& classPath
     {
         if(!classId)
         {
-            if(objId)
-            {
-                classId = env->GetObjectClass(objId);
-            }
-            else if(!classPath.empty())
+            if(!classPath.empty())
             {
                 classId = Jni::get().getClass(_classPath);
+            }
+            else if(objId)
+            {
+                classId = env->GetObjectClass(objId);
             }
         }
         if(classId)
@@ -182,7 +182,7 @@ void JniObject::checkJniException()
     {
         return;
     }
-    JniObject exc(env->ExceptionOccurred());
+    JniObject exc("java/lang/Throwable", env->ExceptionOccurred());
     if(exc)
     {
         env->ExceptionClear();

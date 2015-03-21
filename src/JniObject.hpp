@@ -67,7 +67,7 @@ public:
     JNIEnv* getEnvironment();
  
     /**
-     * get a class, will be stored in64 the class cache
+     * get a class, will be stored in the class cache
      */
     jclass getClass(const std::string& classPath, bool cache=true);
 
