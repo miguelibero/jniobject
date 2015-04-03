@@ -382,6 +382,12 @@ std::string JniObject::getSignaturePart(const unsigned int& val)
 {
     return "I";
 }
+
+template<>
+std::string JniObject::getSignaturePart(const double& val)
+{
+    return "D";
+}
  
 template<>
 std::string JniObject::getSignaturePart(const float& val)
@@ -633,7 +639,63 @@ bool JniObject::convertFromJavaObject(JNIEnv* env, jobject obj, JniObject& out)
     env->DeleteLocalRef(obj);
     return true;
 }
+
+template<>
+bool JniObject::convertFromJavaObject(JNIEnv* env, jobject obj, int& out)
+{
+    out = JniObject("java/lang/Integer", obj).call("intValue", out);
+    return true;
+}
+
+template<>
+bool JniObject::convertFromJavaObject(JNIEnv* env, jobject obj, float& out)
+{
+    out = JniObject("java/lang/Float", obj).call("floatValue", out);
+    return true;
+}
+
+template<>
+bool JniObject::convertFromJavaObject(JNIEnv* env, jobject obj, double& out)
+{
+    out = JniObject("java/lang/Double", obj).call("doubleValue", out);
+    return true;
+}
+
+template<>
+bool JniObject::convertFromJavaObject(JNIEnv* env, jobject obj, bool& out)
+{
+    out = JniObject("java/lang/Boolean", obj).call("booleanValue", out);
+    return true;
+}
+
+template<>
+bool JniObject::convertFromJavaObject(JNIEnv* env, jobject obj, uint8_t& out)
+{
+    out = JniObject("java/lang/Byte", obj).call("byteValue", out);
+    return true;
+}
+
+template<>
+bool JniObject::convertFromJavaObject(JNIEnv* env, jobject obj, short& out)
+{
+    out = JniObject("java/lang/Short", obj).call("shortValue", out);
+    return true;
+}
  
+template<>
+bool JniObject::convertFromJavaObject(JNIEnv* env, jobject obj, char& out)
+{
+    out = JniObject("java/lang/Character", obj).call("charValue", out);
+    return true;
+}
+ 
+template<>
+bool JniObject::convertFromJavaObject(JNIEnv* env, jobject obj, long& out)
+{
+    out = JniObject("java/lang/Long", obj).call("longValue", out);
+    return true;
+}
+
 #pragma mark - JniObject call jni
  
 template<>
@@ -693,6 +755,18 @@ template<>
 void JniObject::callJavaMethod(JNIEnv* env, jobject objId, jmethodID methodId, jvalue* args, bool& out)
 {
     out = env->CallBooleanMethodA(objId, methodId, args);
+}
+ 
+template<>
+void JniObject::callJavaMethod(JNIEnv* env, jobject objId, jmethodID methodId, jvalue* args, char& out)
+{
+    out = env->CallCharMethodA(objId, methodId, args);
+}
+ 
+template<>
+void JniObject::callJavaMethod(JNIEnv* env, jobject objId, jmethodID methodId, jvalue* args, short& out)
+{
+    out = env->CallShortMethodA(objId, methodId, args);
 }
 
 template<>
