@@ -228,10 +228,7 @@ template<typename... Args>
     Return callStaticJavaMethod(JNIEnv* env, jclass classId, jmethodID methodId, jvalue* args);
  
     void callJavaVoidMethod(JNIEnv* env, jobject objId, jmethodID methodId, jvalue* args);
- 
-    template<typename Return>
-    void callJavaMethod(JNIEnv* env, jobject objId, jmethodID methodId, jvalue* args, Return& out);
- 
+
     template<typename Return>
     void callJavaObjectMethod(JNIEnv* env, jobject objId, jmethodID methodId, jvalue* args, Return& out)
     {
@@ -240,7 +237,13 @@ template<typename... Args>
         checkJniException();
         out = convertFromJavaObject<Return>(jout);
     }
- 
+
+    template<typename Return>
+    void callJavaMethod(JNIEnv* env, jobject objId, jmethodID methodId, jvalue* args, Return& out)
+    {
+        callJavaObjectMethod(env, objId, methodId, args, out);
+    }
+
     template<typename Type>
     void callJavaMethod(JNIEnv* env, jobject objId, jmethodID methodId, jvalue* args, std::vector<Type>& out)
     {
